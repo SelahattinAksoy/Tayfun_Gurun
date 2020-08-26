@@ -1,0 +1,56 @@
+<html>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+{% load static %}
+<style>
+ .bg {
+ background: url("/static/assets/img/header-bg.jpg") no-repeat;
+ width:100%;
+ height:100%;
+ background-size:100%;
+ }
+.form-container{
+    position:absolute;
+    top:30vh;
+    background: #fff;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0px 0px 10px 0px #000;
+    
+}
+
+</style>
+<body>
+<div class="bg">
+<section class="container-fluid ">
+    <section class="row justify-content-center">
+        <section class="col-12 col-sm-6 col-md-3">
+            
+            <form action="/login/" class="form-container" method="POST">
+            <h3 style="text-align:center">Tayfun Gürün <br>   Hair Design Studio  </h3><hr>
+            {% csrf_token %}
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Kullanıcı Adı</label>
+                        <input name="name" type="text"required="required" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Kullanıcı Adı">
+                        <small id="emailHelp" class="form-text text-muted">Güvenli giriş yapılmaktadır.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Şifre</label>
+                        <input name="password" required="required" type="password" class="form-control" id="exampleInputPassword1" placeholder="Şifre">
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                        <label class="form-check-label" for="exampleCheck1">Kaydet</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Giriş</button>
+            </form>
+        </section>
+
+    </section>
+
+</section>
+</div>
+</body>
+
+</html>
