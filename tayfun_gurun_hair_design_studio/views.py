@@ -6,6 +6,13 @@ from django.contrib.auth import logout
 from django.core.mail import send_mail
 from django.core.mail import send_mass_mail
 
+
+def error_404(request):
+  
+    return render(request,"404.html")
+
+
+
 def index(request):
     
     all_service=Service.objects.all()
@@ -15,9 +22,9 @@ def index(request):
     return render(request,"index.html",context)
 
 
-
+mail_sit=""
 def randevu(request):
-
+    
     if request.method =="GET":
         return redirect("/")
 
@@ -26,20 +33,44 @@ def randevu(request):
         surname=request.POST.get("surname") 
         mail=request.POST.get("email") 
         phone=request.POST.get("phone") 
-        message=request.POST.get("message")
+        message=request.POST.get("randevu_hour_selected")
         date=datetime.now() 
         if(len(name)>2 and len(surname)>2 and len(phone)>9):
                 msj="Randevunuz başarıyla alınmıştır.Bizi tercih ettiğiniz için teşekkürler "+name+" "+surname
-                send_mail("Tayfun Gürün Hair Design Stüdio-Randevu",msj,"tayfungurunhairdesignstudio@gmail.com",[mail], fail_silently=False)
+              
                 newOrder=Order(first_name=name,last_name=surname,mail=mail,date=date, phone_number=phone,message=message)
                 newOrder.save()
-              
+
+                try:
+                    send_mail("Tayfun Gürün Hair Design Stüdio-Randevu",msj,"tayfungurunhairdesignstudio@gmail.com",[mail], fail_silently=False)
+                    mail_sit="Randevunuz alındığına dair mail yollanmıştır."
+                except:
+                    mail_sit="Mail sisteminde bir problem olduğundan mail yollayamadık.Randevunuz Alınmışt."
+
+                if(Order.objects.filter(first_name=name, last_name=surname,mail=mail,date=date).exists()):
+                         
+                       return redirect("/randevu_succ")
+                else:
+                       return redirect("/randevu_fail")
                 if not Customer.objects.filter(phone_number = phone).exists():
-                  newCustomer=Customer(first_name=name,last_name=surname,mail=mail,phone_number=phone)
+                  newCustomer=Customer(first_name=name,last_name=surname,mail=mail,phone_number=phone,mail_sended="No")
                   newCustomer.save()
 
-        return redirect("/")
+        return redirect("/randevu_fail")
 
+
+def randevu_succ(request):
+
+     context={
+       "mail_sit":mail_sit
+     }
+     return render(request,"order_succ.html",context)
+
+def randevu_fail(request):
+     context={
+            "mail_sit":mail_sit
+          }
+     return render(request,"randevu_fail.html",context)
 
 
 
@@ -47,10 +78,12 @@ def manage(request):
     
   all_order=Order.objects.all()
   all_service=Service.objects.all()
+  all_customer=Customer.objects.all()
 
   context={
         "all_order":all_order,
-        "all_service":all_service
+        "all_service":all_service,
+        "all_customer":all_customer
     }
   
   if request.user.is_authenticated:
@@ -89,14 +122,22 @@ def send(request):
   header_ex =request.GET['mail_ex']
 
   if request.user.is_authenticated:
-        for i in range(3):
-         
-            message = 'test message'
-            from_email = 'tayfungurunhairdesignstudio@gmail.com'
-            messages = [(i, header_ex, from_email, [recipient.mail]) for recipient in mail_list]
-            send_mass_mail(messages)
+        
+          mails = [ recipient.mail for recipient in mail_list if recipient.mail_sended=="no" ]
+          
+          for mail in mails:
+             try:
+                    send_mail("Tayfun Gürün Hair Design Stüdio-Randevu",msj,"tayfungurunhairdesignstudio@gmail.com",[mail], fail_silently=False)
+                    Customerupdate=Customer(mail=mail)
+                    Customerupdate.save()
+             except:
+               print("mail yollarken bir sorun oluştu...")
+            #message = 'test message'
+            #from_email = 'tayfungurunhairdesignstudio@gmail.com'
+            #messages = [(i, header_ex, from_email, [recipient.mail]) for recipient in mail_list]
+            #send_mass_mail(messages)
      
-        return redirect("/manage")
+          return redirect("/manage")
 
   else:
         return redirect("/")
@@ -105,9 +146,13 @@ def send(request):
 def price_update(request):
   price_code = request.GET['price_code']
   new_price=request.GET['new_price']
-  service=Service.objects.get(id=price_code)
-  service.price=new_price
-  service.save()
+
+  if(Service.objects.filter(id=price_code).exists()):
+
+        service=Service.objects.get(id=price_code)
+        service.price=new_price
+        service.save()
+
   if request.user.is_authenticated:
 
         print( new_price)
@@ -129,7 +174,14 @@ def add_order(request):
                 newOrder=Order(first_name=name,last_name=surname,mail=mail,date=date, phone_number=phone,message=message)
                 newOrder.save()
                 msj="Randevunuz başarıyla alınmıştır.Bizi tercih ettiğiniz için teşekkürler "+name+" "+surname
-                print(msj)
-                print(mail)
-                send_mail("Tayfun Gürün Hair Design Stüdio-Randevu",msj,mail,[mail], fail_silently=False)
+
+                try:
+                    send_mail("Tayfun Gürün Hair Design Stüdio-Randevu",msj,"tayfungurunhairdesignstudio@gmail.com",[mail], fail_silently=False)
+                    mail_sit="Randevunuz alındığına dair mail yollanmıştır."
+                except:
+                    mail_sit="Mail sisteminde bir problem olduğundan mail yollayamadık.Randevunuz Alınmışt."
+
+          
         return redirect("/manage")
+
+

@@ -26,4 +26,6 @@ urlpatterns = [
     path('manage/send/', views.send),
     path('price_update/', views.price_update),
     path('manage/add_order/', views.add_order),
+    path('randevu_succ/', views.randevu_succ),
+    path('randevu_fail/', views.randevu_fail),
 ]

@@ -29,6 +29,7 @@ class Customer(models.Model):
          mail = models.CharField(max_length=30,verbose_name="Mail")
          first_name = models.CharField(max_length=30,verbose_name="Ad")
          last_name = models.CharField(max_length=30,verbose_name="Soyad")
+         mail_sended=models.CharField(null=True, max_length=30,verbose_name="Mail Yollandı")
          
          
          def __str__(self):
